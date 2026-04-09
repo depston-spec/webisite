@@ -1,4 +1,5 @@
 (function () {
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
   const SUPABASE_URL = "https://gjsqinbiruitzttavizy.supabase.c";
   const SUPABASE_ANON_KEY = "sb_publishable_uHDziTQnuJfE8QMjl-NTjA_q04R8cL5";
   const ALLOWED_EMAILS = ["warpaj10@gmail.com", "__EMAIL_TWO__"];
@@ -27,7 +28,7 @@
   let saveTimer = null;
   let realtimeChannel = null;
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let appState = {
     active: WS.A,
