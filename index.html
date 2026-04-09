@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <script type="module" src="app.js"></script>
 </head>
 <body class="theme-violet">
   <div class="bg-atmosphere" aria-hidden="true"></div>
@@ -22,7 +21,7 @@
           <div class="header-titles">
             <p class="eyebrow">Список заказов</p>
             <h1 class="logo">Yupoo <span>tracker</span></h1>
-            <p class="auth-status" id="authStatus">Подключение…</p>
+            <p class="auth-status" id="authStatus">Инициализация…</p>
           </div>
         </div>
       </header>
@@ -166,6 +165,6 @@
     </article>
   </template>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
