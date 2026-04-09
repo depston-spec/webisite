@@ -1,5 +1,5 @@
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-  const SUPABASE_URL = "https://gjsqinbiruitzttavizy.supabase.c";
+  const SUPABASE_URL = "https://gjsqinbiruitzttavizy.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_uHDziTQnuJfE8QMjl-NTjA_q04R8cL5";
   const ALLOWED_EMAILS = ["warpaj10@gmail.com", "warpaj20@gmail.com"].map(v => v.toLowerCase());
   const DEFAULT_RATE = 12.5;
