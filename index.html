@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yupoo — список заказа</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="theme-violet">
+  <div class="bg-atmosphere" aria-hidden="true"></div>
+  <div class="bg-blobs" aria-hidden="true"></div>
+
+  <div class="app">
+    <aside class="sidebar card-enter">
+      <header class="header">
+        <div class="header-brand">
+          <span class="header-mark" aria-hidden="true"></span>
+          <div class="header-titles">
+            <p class="eyebrow">Список заказов</p>
+            <h1 class="logo">Yupoo <span>tracker</span></h1>
+            <p class="auth-status" id="authStatus">Подключение…</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="invite-box">
+        <p class="invite-box__title">Общий доступ</p>
+        <p class="invite-box__text">Вход по magic link. Разреши только два email: свой и друга.</p>
+        <label class="field">
+          <span class="field-label">Email</span>
+          <input type="email" id="emailInput" class="input" placeholder="name@example.com" autocomplete="email" />
+        </label>
+        <div class="auth-actions">
+          <button type="button" id="loginBtn" class="btn btn--primary">Войти по email</button>
+          <button type="button" id="logoutBtn" class="btn btn--ghost" hidden>Выйти</button>
+        </div>
+        <p class="invite-box__hint">Ссылка придет на почту. После входа данные будут общими для вас двоих.</p>
+      </section>
+
+      <div class="workspace-switch" role="tablist" aria-label="Выбор списка заказов">
+        <button type="button" class="workspace-btn workspace-btn--active" data-workspace="a" id="workspaceBtnA" role="tab" aria-selected="true">Заказы 1</button>
+        <button type="button" class="workspace-btn" data-workspace="b" id="workspaceBtnB" role="tab" aria-selected="false">Заказы 2</button>
+      </div>
+
+      <details class="rate-disclosure">
+        <summary class="rate-disclosure__summary">Курс ¥ → ₽ <span class="rate-disclosure__muted">(если нужны рубли)</span></summary>
+        <div class="rate-disclosure__body">
+          <label class="field">
+            <span class="field-label">1 CNY =</span>
+            <div class="field-row">
+              <input type="number" id="rateRub" class="input input--rate" min="0" step="0.01" value="12.50" inputmode="decimal" />
+              <span class="suffix">₽</span>
+            </div>
+          </label>
+        </div>
+      </details>
+
+      <div class="toolbar">
+        <button type="button" id="addItem" class="btn btn--primary" disabled>
+          <span class="btn-icon">+</span> Добавить товар
+        </button>
+      </div>
+
+      <footer class="totals" id="totalsFooter">
+        <div class="totals-inner">
+          <h2 class="totals-title">Итого</h2>
+          <div class="totals-row">
+            <div class="total-block">
+              <span class="total-label">Юани</span>
+              <span class="total-value" id="totalCny">0.00</span>
+              <span class="total-unit">CNY</span>
+            </div>
+            <div class="total-divider"></div>
+            <div class="total-block">
+              <span class="total-label">Рубли</span>
+              <span class="total-value total-value--rub" id="totalRub">0.00</span>
+              <span class="total-unit">₽</span>
+            </div>
+          </div>
+          <p class="totals-note">₽ = ¥ × курс</p>
+        </div>
+      </footer>
+    </aside>
+
+    <main class="stage">
+      <div class="stage-header">
+        <h2 class="stage-title">Товары</h2>
+        <p class="stage-sub">Карточки</p>
+      </div>
+      <div class="sync-banner" id="syncBanner">Cloudflare Pages + Supabase: общая корзина для двух человек с синхронизацией.</div>
+      <div id="itemsList" class="items-list"></div>
+    </main>
+  </div>
+
+  <div id="lightbox" class="lightbox" hidden>
+    <button type="button" class="lightbox-close" aria-label="Закрыть">×</button>
+    <img class="lightbox-img" alt="Полноэкранное фото товара" />
+  </div>
+
+  <template id="itemTemplate">
+    <article class="item card-enter">
+      <button type="button" class="item-remove" title="Удалить" aria-label="Удалить товар">×</button>
+      <div class="item-grid">
+        <div class="item-visual">
+          <div class="image-tabs" role="tablist">
+            <button type="button" class="tab tab--active" data-tab="url">Ссылка</button>
+            <button type="button" class="tab" data-tab="file">С ПК</button>
+          </div>
+          <div class="tab-panel tab-panel--url">
+            <input type="url" class="input image-url" placeholder="https://… фото" />
+          </div>
+          <div class="tab-panel tab-panel--file hidden">
+            <label class="file-drop">
+              <input type="file" class="image-file" accept="image/*" />
+              <span class="file-drop-text">Выбрать файл</span>
+            </label>
+          </div>
+          <div class="preview-wrap" role="button" tabindex="0" aria-label="Открыть фото на весь экран">
+            <img class="preview" alt="" hidden />
+            <div class="preview-placeholder">Превью · клик — во весь экран</div>
+          </div>
+        </div>
+        <div class="item-fields">
+          <label class="field">
+            <span class="field-label">Название</span>
+            <input type="text" class="input title-input" placeholder="Например: куртка" />
+          </label>
+          <div class="field">
+            <span class="field-label">Ссылка на Yupoo</span>
+            <div class="input-row">
+              <input type="url" class="input yupoo-input" placeholder="https://…yupoo.com/…" />
+              <button type="button" class="btn btn--go yupoo-go" title="Открыть Yupoo">Перейти</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">Ссылка на Taobao</span>
+            <div class="input-row">
+              <input type="url" class="input taobao-input" placeholder="https://item.taobao.com/…" />
+              <button type="button" class="btn btn--go taobao-go" title="Открыть Taobao">Перейти</button>
+            </div>
+          </div>
+          <div class="field-row field-row--gap">
+            <label class="field field--grow">
+              <span class="field-label">Размер</span>
+              <input type="text" class="input size-input" placeholder="M / L" />
+            </label>
+            <label class="field field--price">
+              <span class="field-label">Цена, ¥</span>
+              <input type="number" class="input price-input" min="0" step="0.01" placeholder="0" inputmode="decimal" />
+            </label>
+          </div>
+          <div class="item-rub-line">
+            <span class="item-rub-label">В рублях:</span>
+            <span class="item-rub-value">0.00 ₽</span>
+          </div>
+          <div class="item-meta">
+            <span class="item-owner">Автор: —</span>
+            <span class="item-updated">Изменено: —</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
